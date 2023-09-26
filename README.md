@@ -11,6 +11,5 @@ composer install
 To run the application in development, you can run these commands
 
 ```bash
-cd [my-app-name]
 composer start
 ```

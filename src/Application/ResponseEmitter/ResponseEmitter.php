@@ -6,6 +6,7 @@ namespace App\Application\ResponseEmitter;
 
 use Psr\Http\Message\ResponseInterface;
 use Slim\ResponseEmitter as SlimResponseEmitter;
+use Dotenv\Dotenv;
 
 class ResponseEmitter extends SlimResponseEmitter
 {
@@ -14,17 +15,16 @@ class ResponseEmitter extends SlimResponseEmitter
      */
     public function emit(ResponseInterface $response): void
     {
-        // This variable should be set to the allowed host from which your API can be accessed with
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-
+        $dotenv = Dotenv::createImmutable(__DIR__ . '../../../../');
+        $dotenv->load();
         $response = $response
             ->withHeader('Access-Control-Allow-Credentials', 'true')
-            ->withHeader('Access-Control-Allow-Origin', $origin)
+            ->withHeader('Access-Control-Allow-Origin', $_ENV['ALLOW_ORIGIN'])
             ->withHeader(
                 'Access-Control-Allow-Headers',
                 'X-Requested-With, Content-Type, Accept, Origin, Authorization',
             )
-            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
             ->withHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->withAddedHeader('Cache-Control', 'post-check=0, pre-check=0')
             ->withHeader('Pragma', 'no-cache');

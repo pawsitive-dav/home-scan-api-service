@@ -10,6 +10,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpNotFoundException;
+use Dotenv\Dotenv;
+use PDO;
 
 abstract class Action
 {
@@ -24,6 +26,8 @@ abstract class Action
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
+        $dotenv = Dotenv::createImmutable(__DIR__ . '../../../../');
+        $dotenv->load();
     }
 
     /**
@@ -86,7 +90,74 @@ abstract class Action
         $this->response->getBody()->write($json);
 
         return $this->response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus($payload->getStatusCode());
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($payload->getStatusCode());
+    }
+
+    protected function pdoConnect($database)
+    {
+        $dbHost = $_ENV['DB_HOST'];
+        $dbUsername = $_ENV['DB_USERNAME'];
+        $dbPassword = $_ENV['DB_PASSWORD'];
+        $dbCharset = $_ENV['DB_CHARSET'];
+
+        $dsn = "mysql:host={$dbHost};dbname={$database};charset={$dbCharset}";
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ];
+        try {
+            $pdo = new PDO($dsn, $dbUsername, $dbPassword, $options);
+        } catch (\PDOException $e) {
+            throw new \PDOException($e->getMessage(), (int)$e->getCode());
+        }
+        return $pdo;
+    }
+
+    protected function UUIDV4(): string
+    {
+        $data = random_bytes(16);
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
+
+    protected function validateInputBody($data, $all_keys, $required_keys)
+    {
+        // Check if there are any extra keys in the data
+        foreach ($data as $key => $value) {
+            if (!in_array($key, $all_keys)) {
+                return false;
+            }
+        }
+        // Check if all required keys are present in the data
+        foreach ($required_keys as $key) {
+            if (!isset($data[$key]) || empty($data[$key])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected function sendLineMessage($message)
+    {
+        $url = 'https://notify-api.line.me/api/notify';
+        $headers = [
+            'Content-Type: application/x-www-form-urlencoded',
+            'Authorization: Bearer ' . $_ENV['LINE_NOTIFY_TOKEN']
+        ];
+        $data = http_build_query(['message' => $message]);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return $result;
     }
 }

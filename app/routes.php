@@ -2,26 +2,59 @@
 
 declare(strict_types=1);
 
-use App\Application\Actions\User\ListUsersAction;
-use App\Application\Actions\User\ViewUserAction;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
+use App\Application\Middleware\AccessMiddleware as VerrifyAccessToken;
+use App\Application\Middleware\RefreshMiddleware as VerifyRefreshToken;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Interfaces\RouteCollectorProxyInterface as Group;
+
+use App\Application\Actions\Auth\RegisterPortal;
+use App\Application\Actions\Auth\RegisterExternal;
+
+use App\Application\Actions\Auth\AccountApproval;
+use App\Application\Actions\Auth\AccountSetActive;
+use App\Application\Actions\Auth\AccountSetSuspend;
+use App\Application\Actions\Auth\AccountDelete;
+use App\Application\Actions\Auth\LoginPortal;
+use App\Application\Actions\Auth\LoginExternal;
+use App\Application\Actions\Auth\VerifyToken;
+use App\Application\Actions\Auth\VerifyUsername;
+
+use App\Application\Actions\Member\GetMemberInfo;
+use App\Application\Actions\Member\GetMemberInfoBy;
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
-        // CORS Pre-Flight OPTIONS Request Handler
         return $response;
     });
 
-    $app->get('/', function (Request $request, Response $response) {
-        $response->getBody()->write('Hello world!');
-        return $response;
-    });
-
-    $app->group('/users', function (Group $group) {
-        $group->get('', ListUsersAction::class);
-        $group->get('/{id}', ViewUserAction::class);
+    $app->group('/api', function (Group $group) {
+        $group->group('/v1', function (Group $group) {
+            $group->group('/auth', function (Group $group) {
+                $group->group('/register', function (Group $group) {
+                    $group->post('/portal', RegisterPortal::class);
+                    $group->post('/external', RegisterExternal::class);
+                });
+                $group->group('/account', function (Group $group) {
+                    $group->post('/approval', AccountApproval::class)->add(VerrifyAccessToken::class);
+                    $group->post('/set-active', AccountSetActive::class)->add(VerrifyAccessToken::class);
+                    $group->post('/set-suspend', AccountSetSuspend::class)->add(VerrifyAccessToken::class);
+                    $group->post('/delete', AccountDelete::class)->add(VerrifyAccessToken::class);
+                });
+                $group->group('/login', function (Group $group) {
+                    $group->post('/portal', LoginPortal::class);
+                    $group->post('/external', LoginExternal::class);
+                });
+                $group->group('/verify', function (Group $group) {
+                    $group->post('/token', VerifyToken::class)->add(VerifyRefreshToken::class);
+                    $group->post('/username', VerifyUsername::class);
+                });
+            });
+            $group->group('/member', function (Group $group) {
+                $group->get('/', GetMemberInfo::class)->add(VerrifyAccessToken::class);
+                $group->get('/{id}', GetMemberInfoBy::class)->add(VerrifyAccessToken::class);
+            });
+        });
     });
 };

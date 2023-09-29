@@ -29,32 +29,30 @@ return function (App $app) {
         return $response;
     });
 
-    $app->group('/api', function (Group $group) {
-        $group->group('/v1', function (Group $group) {
-            $group->group('/auth', function (Group $group) {
-                $group->group('/register', function (Group $group) {
-                    $group->post('/portal', RegisterPortal::class);
-                    $group->post('/external', RegisterExternal::class);
-                });
-                $group->group('/account', function (Group $group) {
-                    $group->post('/approval', AccountApproval::class)->add(VerrifyAccessToken::class);
-                    $group->post('/set-active', AccountSetActive::class)->add(VerrifyAccessToken::class);
-                    $group->post('/set-suspend', AccountSetSuspend::class)->add(VerrifyAccessToken::class);
-                    $group->post('/delete', AccountDelete::class)->add(VerrifyAccessToken::class);
-                });
-                $group->group('/login', function (Group $group) {
-                    $group->post('/portal', LoginPortal::class);
-                    $group->post('/external', LoginExternal::class);
-                });
-                $group->group('/verify', function (Group $group) {
-                    $group->post('/token', VerifyToken::class)->add(VerifyRefreshToken::class);
-                    $group->post('/username', VerifyUsername::class);
-                });
+    $app->group('/v1', function (Group $group) {
+        $group->group('/auth', function (Group $group) {
+            $group->group('/register', function (Group $group) {
+                $group->post('/portal', RegisterPortal::class);
+                $group->post('/external', RegisterExternal::class);
             });
-            $group->group('/member', function (Group $group) {
-                $group->get('/', GetMemberInfo::class)->add(VerrifyAccessToken::class);
-                $group->get('/{id}', GetMemberInfoBy::class)->add(VerrifyAccessToken::class);
+            $group->group('/account', function (Group $group) {
+                $group->post('/approval', AccountApproval::class)->add(VerrifyAccessToken::class);
+                $group->post('/set-active', AccountSetActive::class)->add(VerrifyAccessToken::class);
+                $group->post('/set-suspend', AccountSetSuspend::class)->add(VerrifyAccessToken::class);
+                $group->post('/delete', AccountDelete::class)->add(VerrifyAccessToken::class);
             });
+            $group->group('/login', function (Group $group) {
+                $group->post('/portal', LoginPortal::class);
+                $group->post('/external', LoginExternal::class);
+            });
+            $group->group('/verify', function (Group $group) {
+                $group->post('/token', VerifyToken::class)->add(VerifyRefreshToken::class);
+                $group->post('/username', VerifyUsername::class);
+            });
+        });
+        $group->group('/member', function (Group $group) {
+            $group->get('/', GetMemberInfo::class)->add(VerrifyAccessToken::class);
+            $group->get('/{id}', GetMemberInfoBy::class)->add(VerrifyAccessToken::class);
         });
     });
 };

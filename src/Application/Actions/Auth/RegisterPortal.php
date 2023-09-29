@@ -23,10 +23,6 @@ class RegisterPortal extends AuthAction
         $dateNow = date('Y-m-d H:i:s');
         $UUID = $this->UUIDV4();
         $passwordHashed = $this->hashPassword($input['password']);
-        $avatarPath = "";
-        if ($input['avatar_path']) {
-            return $this->respondWithData($input['avatar_path']);
-        }
 
         $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
 

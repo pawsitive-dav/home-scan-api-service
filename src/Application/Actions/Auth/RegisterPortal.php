@@ -12,7 +12,7 @@ class RegisterPortal extends AuthAction
     protected function action(): Response
     {
         $input = $this->getFormData();
-        $allKeys = ["username", "password", "avatar_path", "first_name", "last_name", "code_name"];
+        $allKeys = ["username", "password", "first_name", "last_name", "code_name"];
         $requiredKeys = ["username", "password", "first_name", "last_name", "code_name"];
 
         if (!$this->validateInputBody($input, $allKeys, $requiredKeys)) {
@@ -23,6 +23,10 @@ class RegisterPortal extends AuthAction
         $dateNow = date('Y-m-d H:i:s');
         $UUID = $this->UUIDV4();
         $passwordHashed = $this->hashPassword($input['password']);
+        $avatarPath = "";
+        if ($input['avatar_path']) {
+            return $this->respondWithData($input['avatar_path']);
+        }
 
         $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
 
@@ -32,7 +36,7 @@ class RegisterPortal extends AuthAction
             return $this->respondWithData("Failed to insert account", 400);
         }
 
-        $insertMemberInfoSuccess = $this->insertMemberInfo($pdo, $UUID, $input['avatar_path'], $input['first_name'], $input['last_name'], $input['code_name']);
+        $insertMemberInfoSuccess = $this->insertMemberInfo($pdo, $UUID, $input['first_name'], $input['last_name'], $input['code_name']);
 
         if (!$insertMemberInfoSuccess) {
             return $this->respondWithData("Failed to insert member info", 400);
@@ -65,21 +69,19 @@ class RegisterPortal extends AuthAction
         return $stmtAccount->execute();
     }
 
-    private function insertMemberInfo($pdo, $UUID, $avatarPath, $firstName, $lastName, $codeName)
+    private function insertMemberInfo($pdo, $UUID, $firstName, $lastName, $codeName)
     {
         // Insert into member_info table
         $dbTableMemberInfo = 'member_info';
         $sqlQueryMemberInfo = "INSERT INTO " . $dbTableMemberInfo . "
                             SET
                                 account_id = :account_id, 
-                                avatar_path = :avatar_path, 
                                 first_name = :first_name, 
                                 last_name = :last_name, 
                                 code_name = :code_name";
 
         $stmtMemberInfo = $pdo->prepare($sqlQueryMemberInfo);
         $stmtMemberInfo->bindValue(':account_id', $UUID);
-        $stmtMemberInfo->bindValue(':avatar_path', $avatarPath);
         $stmtMemberInfo->bindValue(':first_name', $firstName);
         $stmtMemberInfo->bindValue(':last_name', $lastName);
         $stmtMemberInfo->bindValue(':code_name', $codeName);

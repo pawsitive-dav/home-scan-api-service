@@ -2,15 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Actions\Member;
+namespace App\Application\Actions\ImageAvatar;
 
 use App\Application\Actions\Action;
 use Psr\Log\LoggerInterface;
+use Dotenv\Dotenv;
 
-abstract class MemberAction extends Action
+abstract class MainAction extends Action
 {
     public function __construct(LoggerInterface $logger)
     {
         parent::__construct($logger);
+        $dotenv = Dotenv::createImmutable(__DIR__ . '../../../../../');
+        $dotenv->load();
     }
 }

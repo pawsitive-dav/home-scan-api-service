@@ -1,13 +1,13 @@
 {
-    "name": "auth/api",
-    "description": "Auth Service API",
+    "name": "api/service",
+    "description": "API Service",
     "keywords": [
         "microframework",
         "rest",
         "router",
         "psr7"
     ],
-    "homepage": "https://github.com/pawsitive-dav/auth-service",
+    "homepage": "https://github.com/pawsitive-dav/api-service",
     "license": "MIT",
     "authors": [
         {
@@ -51,7 +51,7 @@
         }
     },
     "scripts": {
-        "start": "php -S localhost:8080 -t public",
+        "start": "php -S localhost:8081 -t public",
         "test": "phpunit"
     }
 }

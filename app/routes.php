@@ -20,6 +20,9 @@ use App\Application\Actions\Auth\LoginPortal;
 use App\Application\Actions\Auth\LoginExternal;
 use App\Application\Actions\Auth\VerifyToken;
 use App\Application\Actions\Auth\VerifyUsername;
+use App\Application\Actions\Auth\PasswordRequiredReset;
+use App\Application\Actions\Auth\PasswordVerifyCode;
+use App\Application\Actions\Auth\PasswordReset;
 
 use App\Application\Actions\Member\GetMemberInfo;
 use App\Application\Actions\Member\GetMemberInfoBy;
@@ -48,6 +51,11 @@ return function (App $app) {
             $group->group('/verify', function (Group $group) {
                 $group->post('/token', VerifyToken::class)->add(VerifyRefreshToken::class);
                 $group->post('/username', VerifyUsername::class);
+            });
+            $group->group('/password', function (Group $group) {
+                $group->post('/required-reset', PasswordRequiredReset::class);
+                $group->post('/verify-code', PasswordVerifyCode::class);
+                $group->post('/reset', PasswordReset::class);
             });
         });
         $group->group('/member', function (Group $group) {

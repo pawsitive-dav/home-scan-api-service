@@ -33,7 +33,7 @@ class LoginPortal extends AuthAction
         }
 
         if ($usernameVerifyResult["account_status"] === "suspended") {
-            return $this->respondWithData("Your account is suspended.", 401);
+            return $this->respondWithData("Forbidden", 403);
         }
 
         date_default_timezone_set("Asia/Bangkok");
@@ -52,10 +52,38 @@ class LoginPortal extends AuthAction
         $stmt->bindValue(':account_id', $usernameVerifyResult["account_id"]);
         $stmt->execute();
 
+        $this->checkResetCode($pdo, $usernameVerifyResult["account_id"]);
+
         $refreshToken = $this->createRefreshToken($usernameVerifyResult["account_id"]);
 
         return $this->respondWithData([
             "refreshToken" => $refreshToken
         ]);
+    }
+
+    private function checkResetCode($pdo, $account_id)
+    {
+        $dbTable = 'account';
+
+        // Check if reset_password_code is not null
+        $sqlCheckNull = "SELECT reset_password_code FROM " . $dbTable . " WHERE account_id = :account_id";
+        $stmtCheckNull = $pdo->prepare($sqlCheckNull);
+        $stmtCheckNull->bindValue(':account_id', $account_id);
+        $stmtCheckNull->execute();
+
+        $resetPasswordCode = $stmtCheckNull->fetchColumn();
+
+        if ($resetPasswordCode !== null) {
+            // If reset_password_code is not null, update it to null
+            $sqlQuery = "UPDATE " . $dbTable . "
+                     SET
+                         reset_password_code = NULL
+                     WHERE 
+                         account_id = :account_id";
+
+            $stmt = $pdo->prepare($sqlQuery);
+            $stmt->bindValue(':account_id', $account_id);
+            $stmt->execute();
+        }
     }
 }

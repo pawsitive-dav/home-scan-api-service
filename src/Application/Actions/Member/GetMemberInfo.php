@@ -6,19 +6,29 @@ namespace App\Application\Actions\Member;
 
 use Psr\Http\Message\ResponseInterface as Response;
 
-class GetMemberInfo extends MemberAction
+class GetMemberInfo extends MainAction
 {
     protected function action(): Response
     {
         $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
-        $sqlQuery = "SELECT * FROM member_info";
+
+        $sqlQuery = "SELECT account.account_id, account.external_id, account.username, 
+             account.approval, account.account_status, account.created_by, account.created_at, 
+             account.last_login, account.reset_password_code,
+             member_info.avatar_path, member_info.first_name, member_info.last_name, 
+             member_info.code_name, member_info.member_role 
+             FROM account 
+             INNER JOIN member_info ON account.account_id = member_info.account_id 
+             WHERE account.approval <> 0";
+
         $stmt = $pdo->prepare($sqlQuery);
         $stmt->execute();
-        if ($stmt->rowCount() > 0) {
-            $allData = $stmt->fetchAll();
-            return $this->respondWithData($allData);
+
+        if ($stmt->rowCount() == 0) {
+            return $this->respondWithData("Fail", 404);
         } else {
-            return $this->respondWithData("Failed", 400);
+            $allData = $stmt->fetchAll();
         }
+        return $this->respondWithData($allData);
     }
 }

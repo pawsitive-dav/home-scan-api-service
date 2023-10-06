@@ -15,6 +15,22 @@ class VerifyToken extends AuthAction
         date_default_timezone_set("Asia/Bangkok");
         $expTimestamp = $tokenInfo->exp;
 
+        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $sqlQuery = "SELECT * FROM account WHERE account_id = :account_id ";
+        $stmt = $pdo->prepare($sqlQuery);
+        $stmt->bindValue(":account_id", $tokenInfo->data);
+        $stmt->execute();
+        if ($stmt->rowCount() == 0) {
+            return $this->respondWithData([
+                "refresh" => false,
+                "refreshToken" => false,
+                "accessToken" => false,
+                "accountStatus" => false
+            ], 200);
+        }
+
+        $accountStatus = $stmt->fetchAll()[0]['account_status'];
+
         $startDateTime = date('Y-m-d H:i:s', time());
         $endDateTime = date('Y-m-d H:i:s', $expTimestamp);
 
@@ -29,14 +45,16 @@ class VerifyToken extends AuthAction
             return $this->respondWithData([
                 "refresh" => true,
                 "refreshToken" => $refreshToken,
-                "accessToken" => $accessToken
+                "accessToken" => $accessToken,
+                "accountStatus" => $accountStatus
             ], 200);
         } else {
             $accessToken = $this->createAccessToken($tokenInfo->data);
             return $this->respondWithData([
                 "refresh" => false,
                 "refreshToken" => false,
-                "accessToken" => $accessToken
+                "accessToken" => $accessToken,
+                "accountStatus" => $accountStatus
             ], 200);
         }
     }

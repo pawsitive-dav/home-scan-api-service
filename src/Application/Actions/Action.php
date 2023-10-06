@@ -61,6 +61,11 @@ abstract class Action
         return $this->request->getParsedBody();
     }
 
+    protected function getUploadedFiles()
+    {
+        return $this->request->getUploadedFiles();
+    }
+
     /**
      * @return mixed
      * @throws HttpBadRequestException

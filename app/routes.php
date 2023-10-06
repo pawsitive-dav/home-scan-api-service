@@ -26,6 +26,13 @@ use App\Application\Actions\Auth\PasswordReset;
 
 use App\Application\Actions\Member\GetMemberInfo;
 use App\Application\Actions\Member\GetMemberInfoBy;
+use App\Application\Actions\Member\GetMyInformation;
+use App\Application\Actions\Member\UpdatePassword;
+
+use App\Application\Actions\UploadAvatar\Upload as AvatarUpload;
+use App\Application\Actions\UploadAvatar\Read as AvatarRead;
+
+use App\Application\Actions\UploadAvatar\UploadV2 as AvatarUploadV2;
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
@@ -60,7 +67,19 @@ return function (App $app) {
         });
         $group->group('/member', function (Group $group) {
             $group->get('/', GetMemberInfo::class)->add(VerrifyAccessToken::class);
-            $group->get('/{id}', GetMemberInfoBy::class)->add(VerrifyAccessToken::class);
+            $group->get('/get-by/{id}', GetMemberInfoBy::class)->add(VerrifyAccessToken::class);
+            $group->get('/my-information', GetMyInformation::class)->add(VerrifyAccessToken::class);
+            $group->post('/update-password', UpdatePassword::class)->add(VerrifyAccessToken::class);
+        });
+        $group->group('/avatar', function (Group $group) {
+            $group->post('/upload', AvatarUpload::class)->add(VerrifyAccessToken::class);
+            $group->get('/read/{id}', AvatarRead::class)->add(VerrifyAccessToken::class);
+        });
+    });
+
+    $app->group('/v2', function (Group $group) {
+        $group->group('/avatar', function (Group $group) {
+            $group->post('/upload', AvatarUploadV2::class);
         });
     });
 };

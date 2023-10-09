@@ -29,10 +29,7 @@ use App\Application\Actions\Member\GetMemberInfoBy;
 use App\Application\Actions\Member\GetMyInformation;
 use App\Application\Actions\Member\UpdatePassword;
 
-use App\Application\Actions\UploadAvatar\Upload as AvatarUpload;
-use App\Application\Actions\UploadAvatar\Read as AvatarRead;
-
-use App\Application\Actions\UploadAvatar\UploadV2 as AvatarUploadV2;
+use App\Application\Actions\UploadAvatar\Upload as UploadAvatar;
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
@@ -72,14 +69,7 @@ return function (App $app) {
             $group->post('/update-password', UpdatePassword::class)->add(VerrifyAccessToken::class);
         });
         $group->group('/avatar', function (Group $group) {
-            $group->post('/upload', AvatarUpload::class)->add(VerrifyAccessToken::class);
-            $group->get('/read/{id}', AvatarRead::class)->add(VerrifyAccessToken::class);
-        });
-    });
-
-    $app->group('/v2', function (Group $group) {
-        $group->group('/avatar', function (Group $group) {
-            $group->post('/upload', AvatarUploadV2::class);
+            $group->post('/upload', UploadAvatar::class)->add(VerrifyAccessToken::class);
         });
     });
 };

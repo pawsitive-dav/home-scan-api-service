@@ -15,52 +15,60 @@ class Upload extends MainAction
         $requiredKeys = ["image"];
 
         if (!$this->validateInputBody($input, $allKeys, $requiredKeys)) {
-            return $this->respondWithData("Bad Request: Missing or invalid image data.", 400);
+            return $this->respondWithData("Bad Request", 400);
         }
-
-        $inputImage = $input['image'];
-        $imageDecode = base64_decode($inputImage);
 
         $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
         $account_id = $this->request->getAttribute('tokenInfo')->data;
+        $oldAvatarUrl = $this->checkOldAvatar($pdo, $account_id);
+        if ($oldAvatarUrl) {
+            $cutJpeg = str_replace('.jpeg', '', $oldAvatarUrl);
+            $oldAvatarParts = explode('/', $cutJpeg);
+            $imageIdDelete = $oldAvatarParts[5];
+            $storageDelete = $oldAvatarParts[4];
 
-        $oldAvatar = $this->checkOldAvatar($pdo, $account_id);
+            $deleteImageEndpoint = $_ENV['STORAGE_ENDPOINT'] . '/delete.php';
+            $setUrl = $deleteImageEndpoint . "?storage=" . $storageDelete . "&image_id=" . $imageIdDelete;
 
-        if ($imageDecode === false) {
-            return $this->respondWithData("Bad Request: Invalid base64-encoded image.", 400);
+            $chDelete = curl_init($setUrl);
+            curl_setopt($chDelete, CURLOPT_CUSTOMREQUEST, "DELETE");
+            curl_setopt($chDelete, CURLOPT_RETURNTRANSFER, true);
+            $deleteResponse = curl_exec($chDelete);
+            curl_close($chDelete);
+
+            if (!$deleteResponse) {
+                return $this->respondWithData("Delete Fail", 404);
+            }
         }
 
-        $image_parts = explode(";base64,", $imageDecode);
-        if (count($image_parts) !== 2) {
-            return $this->respondWithData("Bad Request: Invalid base64-encoded image format.", 400);
+        $urlEndpoint = $_ENV['STORAGE_ENDPOINT'] . '/upload.php';
+        $ch = curl_init($urlEndpoint);
+        $payload = json_encode([
+            'image' => $input['image'],
+            'storage' => 'avatars'
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        if (!$result) {
+            return $this->respondWithData("Upload Fail", 404);
         }
 
-        $image_base64 = base64_decode($image_parts[1]);
+        $resultData = json_decode($result, true);
+        $imagePath = str_replace('\/', '/', $resultData['file_path']);
 
-        if ($image_base64 === false) {
-            return $this->respondWithData("Bad Request: Failed to decode base64 image.", 400);
-        }
-
-        $imageId = uniqid();
-        $filename = $imageId . '.jpeg';
-        $uploadDirectory = '../resources/avatar/';
-        $filePath = $uploadDirectory . $filename;
-
-        $fileSaved = file_put_contents($filePath, $image_base64);
-
-        if ($fileSaved === false) {
-            return $this->respondWithData("Internal Server Error: Failed to save the image.", 500);
-        }
-
-        $updateAvatar = $this->updateAvatarPath($pdo, $account_id, $imageId, $oldAvatar);
+        $updateAvatar = $this->updateAvatarUrl($pdo, $account_id, $imagePath);
         if (!$updateAvatar) {
             return $this->respondWithData("Update Fail", 404);
+        } else {
+            return $this->respondWithData("Upload Avatar Successfuly");
         }
-
-        return $this->respondWithData("Upload avatar successfully");
     }
 
-    private function updateAvatarPath($pdo, $account_id, $imageId, $oldAvatar)
+    private function updateAvatarUrl($pdo, $account_id, $imageUrl)
     {
         $dbTable = 'member_info';
         $sqlQuery = "UPDATE " . $dbTable . "
@@ -71,17 +79,8 @@ class Upload extends MainAction
 
         $stmt = $pdo->prepare($sqlQuery);
         $stmt->bindValue(':account_id', $account_id);
-        $stmt->bindValue(':avatar_path', $imageId);
+        $stmt->bindValue(':avatar_path', $imageUrl);
         $stmt->execute();
-
-        if ($oldAvatar) {
-            $filename = $oldAvatar . '.jpeg';
-            $deleteDirectory = '../resources/avatar/';
-            $filePath = $deleteDirectory . $filename;
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
-        }
 
         return $stmt->rowCount() > 0;
     }

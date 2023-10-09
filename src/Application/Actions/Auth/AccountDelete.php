@@ -11,24 +11,26 @@ class AccountDelete extends AuthAction
     protected function action(): Response
     {
         $account_id = $this->request->getAttribute('tokenInfo')->data;
-
         $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
-        $sqlQuery = "SELECT * FROM member_info WHERE account_id = :account_id ";
-        $stmt = $pdo->prepare($sqlQuery);
-        $stmt->bindValue(":account_id", $account_id);
-        $stmt->execute();
 
-        if ($stmt->rowCount() == 0) {
-            return $this->respondWithData("Failed", 400);
-        }
+        $oldAvatarUrl = $this->checkAvatar($pdo, $account_id);
+        if ($oldAvatarUrl) {
+            $cutJpeg = str_replace('.jpeg', '', $oldAvatarUrl);
+            $oldAvatarParts = explode('/', $cutJpeg);
+            $imageIdDelete = $oldAvatarParts[5];
+            $storageDelete = $oldAvatarParts[4];
 
-        $avatarPath = $stmt->fetchAll()[0]['avatar_path'];
-        if ($avatarPath) {
-            $filename = $avatarPath . '.jpeg';
-            $deleteDirectory = '../resources/avatar/';
-            $filePath = $deleteDirectory . $filename;
-            if (file_exists($filePath)) {
-                unlink($filePath);
+            $deleteImageEndpoint = $_ENV['STORAGE_ENDPOINT'] . '/delete.php';
+            $setUrl = $deleteImageEndpoint . "?storage=" . $storageDelete . "&image_id=" . $imageIdDelete;
+
+            $chDelete = curl_init($setUrl);
+            curl_setopt($chDelete, CURLOPT_CUSTOMREQUEST, "DELETE");
+            curl_setopt($chDelete, CURLOPT_RETURNTRANSFER, true);
+            $deleteResponse = curl_exec($chDelete);
+            curl_close($chDelete);
+
+            if (!$deleteResponse) {
+                return $this->respondWithData("Delete Fail", 404);
             }
         }
 
@@ -46,6 +48,21 @@ class AccountDelete extends AuthAction
             return $this->respondWithData("Account deleted successfully.");
         } else {
             return $this->respondWithData("Account not found or delete failed.", 400);
+        }
+    }
+
+    private function checkAvatar($pdo, $account_id)
+    {
+        $dbTable = 'member_info';
+        $sqlQuery = "SELECT * FROM " . $dbTable . " WHERE account_id = :account_id";
+        $stmt = $pdo->prepare($sqlQuery);
+        $stmt->bindValue(':account_id', $account_id);
+        $stmt->execute();
+        if ($stmt->rowCount() > 0) {
+            $allData = $stmt->fetchAll();
+            return $allData[0]['avatar_path'];
+        } else {
+            return false;
         }
     }
 }

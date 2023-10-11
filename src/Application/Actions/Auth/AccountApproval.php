@@ -10,34 +10,38 @@ class AccountApproval extends AuthAction
 {
     protected function action(): Response
     {
+        // Validate input
         $input = $this->getFormData();
-        $allKeys = ["account_id"];
-        $requiredKeys = ["account_id"];
+        $allKeys = ["account_id", "app_role"];
+        $requiredKeys = ["account_id", "app_role"];
 
         if (!$this->validateInputBody($input, $allKeys, $requiredKeys)) {
             return $this->respondWithData("Bad Request", 400);
         }
 
         $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
-        $dbTable = 'account';
-        $sqlQuery = "UPDATE " . $dbTable . "
-                    SET 
-                        approval = :approval, 
-                        account_status = :account_status 
-                    WHERE 
-                        account_id = :account_id AND 
-                        approval != 1";
 
-        $stmt = $pdo->prepare($sqlQuery);
-        $stmt->bindValue(':approval', 1);
-        $stmt->bindValue(':account_status', 'active');
+        $updateQuery = "
+            UPDATE account a
+            JOIN member_info m ON a.account_id = m.account_id
+            SET 
+                a.approval = 1,
+                a.account_status = 'active',
+                m.member_role = :member_role
+            WHERE 
+                a.account_id = :account_id AND 
+                a.approval != 1
+        ";
+
+        $stmt = $pdo->prepare($updateQuery);
+        $stmt->bindValue(':member_role', $input['app_role']);
         $stmt->bindValue(':account_id', $input['account_id']);
         $stmt->execute();
 
-        if ($stmt->rowCount() > 0) {
-            return $this->respondWithData("Account is approved.");
-        } else {
+        if ($stmt->rowCount() == 0) {
             return $this->respondWithData("Failed", 400);
         }
+
+        return $this->respondWithData("Account is approved.");
     }
 }

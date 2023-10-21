@@ -6,7 +6,7 @@ namespace App\Application\Actions\Customer;
 
 use Psr\Http\Message\ResponseInterface as Response;
 
-class ExternalBacklogDelete extends MainAction
+class DataBacklogDelete extends MainAction
 {
     protected function action(): Response
     {
@@ -20,7 +20,7 @@ class ExternalBacklogDelete extends MainAction
 
         $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
-        $sqlQuery = "DELETE FROM external_backlog WHERE data_id = :data_id";
+        $sqlQuery = "DELETE FROM data_backlog WHERE data_id = :data_id";
         $stmt = $pdo->prepare($sqlQuery);
         $stmt->bindValue(':data_id', $input['data_id']);
         $stmt->execute();

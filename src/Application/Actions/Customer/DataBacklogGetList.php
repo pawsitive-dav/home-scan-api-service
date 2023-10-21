@@ -6,12 +6,12 @@ namespace App\Application\Actions\Customer;
 
 use Psr\Http\Message\ResponseInterface as Response;
 
-class ExternalBacklogGetList extends MainAction
+class DataBacklogGetList extends MainAction
 {
     protected function action(): Response
     {
         $PDO = $this->pdoConnect($_ENV['DB_PORTAL']);
-        $sqlQuery = "SELECT * FROM external_backlog";
+        $sqlQuery = "SELECT * FROM data_backlog";
 
         $stmt = $PDO->prepare($sqlQuery);
         $stmt->execute();

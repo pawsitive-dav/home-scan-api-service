@@ -6,7 +6,7 @@ namespace App\Application\Actions\Customer;
 
 use Psr\Http\Message\ResponseInterface as Response;
 
-class ExternalBacklogRegister extends MainAction
+class DataBacklogRegister extends MainAction
 {
     protected function action(): Response
     {
@@ -31,7 +31,7 @@ class ExternalBacklogRegister extends MainAction
         $UUID = $this->UUIDV4();
         $PDO = $this->pdoConnect($_ENV['DB_PORTAL']);
 
-        $sqlQuery = "INSERT INTO external_backlog
+        $sqlQuery = "INSERT INTO data_backlog
                     SET
                         data_id = :data_id, 
                         data_status = :data_status, 

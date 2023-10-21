@@ -41,9 +41,11 @@ use App\Application\Actions\Website\PromotionGetList as GetAllPromotions;
 use App\Application\Actions\Website\BranchGetList as GetAllBranches;
 use App\Application\Actions\Website\PromotionGreate as CreatePromotion;
 
-use App\Application\Actions\Customer\ExternalGetList;
-use App\Application\Actions\Customer\ExternalRegister;
-use App\Application\Actions\Customer\ExternalDelete;
+use App\Application\Actions\Customer\DataBacklogGetList;
+use App\Application\Actions\Customer\DataBacklogRegister;
+use App\Application\Actions\Customer\DataBacklogDelete;
+use App\Application\Actions\Customer\DataBacklogVerify;
+use App\Application\Actions\Customer\DataBacklogApproved;
 
 use App\Application\Actions\Customer\SettingBranchCreate;
 use App\Application\Actions\Customer\SettingBranchDelete;
@@ -113,10 +115,14 @@ return function (App $app) {
             });
         });
         $group->group('/customer', function (Group $group) {
-            $group->group('/external', function (Group $group) {
-                $group->get('/get-list', ExternalGetList::class);
-                $group->post('/register', ExternalRegister::class);
-                $group->delete('/delete', ExternalDelete::class);
+            $group->group('/data', function (Group $group) {
+                $group->group('/backlog', function (Group $group) {
+                    $group->get('/get', DataBacklogGetList::class);
+                    $group->post('/register', DataBacklogRegister::class);
+                    $group->delete('/delete', DataBacklogDelete::class);
+                    $group->post('/verify', DataBacklogVerify::class);
+                    $group->post('/approved', DataBacklogApproved::class);
+                });
             });
             $group->group('/setting', function (Group $group) {
                 $group->group('/branch', function (Group $group) {

@@ -160,4 +160,40 @@ abstract class Action
 
         return $result;
     }
+
+    protected function uploadImage($image)
+    {
+        $urlEndpoint = $_ENV['STORAGE_ENDPOINT'] . '/upload.php';
+        $ch = curl_init($urlEndpoint);
+        $payload = json_encode([
+            'image' => $image,
+            'storage' => 'images'
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        if (!$result) return false;
+        $resultData = json_decode($result, true);
+        $imagePath = str_replace('\/', '/', $resultData['file_path']);
+        return $imagePath;
+    }
+
+    protected function deleteImage($imageUrl)
+    {
+        $cutJpeg = str_replace('.jpeg', '', $imageUrl);
+        $oldAvatarParts = explode('/', $cutJpeg);
+        $imageIdDelete = $oldAvatarParts[5];
+        $storageDelete = $oldAvatarParts[4];
+        $deleteImageEndpoint = $_ENV['STORAGE_ENDPOINT'] . '/delete.php';
+        $setUrl = $deleteImageEndpoint . "?storage=" . $storageDelete . "&image_id=" . $imageIdDelete;
+        $chDelete = curl_init($setUrl);
+        curl_setopt($chDelete, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($chDelete, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($chDelete);
+        curl_close($chDelete);
+        if (!$result) return false;
+        return $result;
+    }
 }

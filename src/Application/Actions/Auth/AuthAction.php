@@ -57,7 +57,7 @@ abstract class AuthAction extends Action
 
     protected function verifyUsername($username)
     {
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $dbTable = 'account';
         $sqlQuery = "SELECT * FROM " . $dbTable . " WHERE username = :username";
         $stmt = $pdo->prepare($sqlQuery);
@@ -72,7 +72,7 @@ abstract class AuthAction extends Action
 
     protected function verifyExternalId($external_id)
     {
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $dbTable = 'account';
         $sqlQuery = "SELECT * FROM " . $dbTable . " WHERE external_id = :external_id";
         $stmt = $pdo->prepare($sqlQuery);

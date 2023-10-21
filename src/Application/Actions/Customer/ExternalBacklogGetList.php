@@ -2,26 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Actions\Role;
+namespace App\Application\Actions\Customer;
 
 use Psr\Http\Message\ResponseInterface as Response;
 
-class GetRole extends MainAction
+class ExternalBacklogGetList extends MainAction
 {
     protected function action(): Response
     {
-        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
+        $PDO = $this->pdoConnect($_ENV['DB_PORTAL']);
+        $sqlQuery = "SELECT * FROM external_backlog";
 
-        $sqlQuery = "SELECT role_name, role_level FROM app_role";
-
-        $stmt = $pdo->prepare($sqlQuery);
+        $stmt = $PDO->prepare($sqlQuery);
         $stmt->execute();
 
         if ($stmt->rowCount() == 0) {
             return $this->respondWithData("Fail", 404);
-        } else {
-            $allData = $stmt->fetchAll();
         }
+
+        $allData = $stmt->fetchAll();
         return $this->respondWithData($allData);
     }
 }

@@ -15,7 +15,7 @@ class VerifyToken extends AuthAction
         date_default_timezone_set("Asia/Bangkok");
         $expTimestamp = $tokenInfo->exp;
 
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $sqlQuery = "SELECT * FROM account WHERE account_id = :account_id ";
         $stmt = $pdo->prepare($sqlQuery);
         $stmt->bindValue(":account_id", $tokenInfo->data);

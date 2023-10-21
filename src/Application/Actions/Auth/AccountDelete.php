@@ -11,7 +11,7 @@ class AccountDelete extends AuthAction
     protected function action(): Response
     {
         $account_id = $this->request->getAttribute('tokenInfo')->data;
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
         $oldAvatarUrl = $this->checkAvatar($pdo, $account_id);
         if ($oldAvatarUrl) {

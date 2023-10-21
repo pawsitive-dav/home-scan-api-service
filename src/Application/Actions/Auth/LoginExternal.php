@@ -35,7 +35,7 @@ class LoginExternal extends AuthAction
         date_default_timezone_set("Asia/Bangkok");
         $dateNow = date('Y-m-d H:i:s');
 
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $dbTable = 'account';
         $sqlQuery = "UPDATE " . $dbTable . "
                         SET

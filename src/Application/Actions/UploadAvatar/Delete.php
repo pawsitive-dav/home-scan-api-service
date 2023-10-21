@@ -18,7 +18,7 @@ class Delete extends MainAction
             return $this->respondWithData("Bad Request", 400);
         }
 
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $account_id = $this->request->getAttribute('tokenInfo')->data;
         $oldAvatarUrl = $this->checkOldAvatar($pdo, $account_id);
         if ($oldAvatarUrl) {

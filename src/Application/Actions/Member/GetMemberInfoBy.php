@@ -12,7 +12,7 @@ class GetMemberInfoBy extends MainAction
     {
         $account_id = $this->resolveArg('id');
 
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $sqlQuery = "SELECT * FROM member_info WHERE account_id = :account_id ";
 
         $stmt = $pdo->prepare($sqlQuery);

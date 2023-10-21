@@ -21,7 +21,7 @@ class UpdatePassword extends MainAction
         $account_id = $this->request->getAttribute('tokenInfo')->data;
         $passwordHashed = $this->hashPassword($input['new_password']);
 
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $dbTable = 'account';
         $sqlQuery = "UPDATE {$dbTable}
                         SET

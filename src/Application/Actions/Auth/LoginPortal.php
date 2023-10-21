@@ -28,7 +28,7 @@ class LoginPortal extends AuthAction
             return $this->respondWithData("Username or Password is incorrect!", 404);
         }
 
-        if ($usernameVerifyResult["approval"] === 0) {
+        if ($usernameVerifyResult["approval"] === "0") {
             return $this->respondWithData("Your account is not approved yet!", 401);
         }
 
@@ -39,7 +39,7 @@ class LoginPortal extends AuthAction
         date_default_timezone_set("Asia/Bangkok");
         $dateNow = date('Y-m-d H:i:s');
 
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $dbTable = 'account';
         $sqlQuery = "UPDATE " . $dbTable . "
                         SET

@@ -23,8 +23,7 @@ class RegisterPortal extends AuthAction
         $dateNow = date('Y-m-d H:i:s');
         $UUID = $this->UUIDV4();
         $passwordHashed = $this->hashPassword($input['password']);
-
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
         $insertAccountSuccess = $this->insertAccount($pdo, $UUID, $input['username'], $passwordHashed, $dateNow);
 

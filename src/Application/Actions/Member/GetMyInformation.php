@@ -12,7 +12,7 @@ class GetMyInformation extends MainAction
     {
         $account_id = $this->request->getAttribute('tokenInfo')->data;
 
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $sqlQuery = "SELECT * FROM member_info WHERE account_id = :account_id ";
 
         $stmt = $pdo->prepare($sqlQuery);

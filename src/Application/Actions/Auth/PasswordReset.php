@@ -38,7 +38,7 @@ class PasswordReset extends AuthAction
 
     private function checkResetCode($username, $resetCode)
     {
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $dbTable = 'account';
         $sqlQuery = "SELECT * FROM " . $dbTable . " WHERE username = :username AND reset_password_code = :reset_password_code";
 
@@ -52,7 +52,7 @@ class PasswordReset extends AuthAction
 
     private function updateNewPassword($username, $new_password)
     {
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $passwordHashed = $this->hashPassword($new_password);
 
         $dbTable = 'account';

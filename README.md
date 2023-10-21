@@ -1,4 +1,4 @@
-# Auth Service API Template
+# API Service API Template
 
 This API use Slim Framework 4 Skeleton
 

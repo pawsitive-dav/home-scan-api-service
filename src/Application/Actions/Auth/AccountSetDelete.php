@@ -20,7 +20,7 @@ class AccountSetDelete extends AuthAction
         }
 
         $account_id = $input['account_id'];
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
         $oldAvatarUrl = $this->checkAvatar($pdo, $account_id);
         if ($oldAvatarUrl) {

@@ -48,7 +48,7 @@ class PasswordRequiredReset extends AuthAction
 
     private function updateResetCode($username, $resetCode)
     {
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $dbTable = 'account';
         $sqlQuery = "UPDATE " . $dbTable . "
                     SET 

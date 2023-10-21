@@ -10,7 +10,7 @@ class AccountGetApproval extends AuthAction
 {
     protected function action(): Response
     {
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
         $sqlQuery = "SELECT account.account_id, account.external_id, account.username, 
              account.approval, account.account_status, account.created_by, account.created_at, 

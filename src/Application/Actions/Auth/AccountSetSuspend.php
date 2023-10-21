@@ -18,7 +18,7 @@ class AccountSetSuspend extends AuthAction
             return $this->respondWithData("Bad Request", 400);
         }
 
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
         $dbTable = 'account';
         $sqlQuery = "UPDATE " . $dbTable . "
                     SET 

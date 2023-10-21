@@ -19,7 +19,7 @@ class AccountReject extends AuthAction
         }
 
         $account_id = $input['account_id'];
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
         $accountDeleteQuery = "DELETE FROM account WHERE account_id = :account_id";
         $accountDeleteStmt = $pdo->prepare($accountDeleteQuery);

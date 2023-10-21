@@ -37,6 +37,26 @@ use App\Application\Actions\Role\GetRole;
 
 use App\Application\Actions\UploadAvatar\Upload as UploadAvatar;
 
+use App\Application\Actions\Website\PromotionGetList as GetAllPromotions;
+use App\Application\Actions\Website\BranchGetList as GetAllBranches;
+use App\Application\Actions\Website\PromotionGreate as CreatePromotion;
+
+use App\Application\Actions\Customer\ExternalGetList;
+use App\Application\Actions\Customer\ExternalRegister;
+use App\Application\Actions\Customer\ExternalDelete;
+
+use App\Application\Actions\Customer\SettingBranchCreate;
+use App\Application\Actions\Customer\SettingBranchDelete;
+use App\Application\Actions\Customer\SettingBranchEdit;
+use App\Application\Actions\Customer\SettingBranchActive;
+use App\Application\Actions\Customer\SettingBranchUnactive;
+use App\Application\Actions\Customer\SettingBranchGetList;
+use App\Application\Actions\Customer\SettingBranchGetActive;
+
+use App\Application\Actions\Customer\SettingServiceCreate;
+use App\Application\Actions\Customer\SettingServiceDelete;
+use App\Application\Actions\Customer\SettingServiceEdit;
+
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
         return $response;
@@ -82,6 +102,38 @@ return function (App $app) {
         });
         $group->group('/role', function (Group $group) {
             $group->get('/', GetRole::class)->add(VerrifyAccessToken::class);
+        });
+        $group->group('/website', function (Group $group) {
+            $group->group('/promotion', function (Group $group) {
+                $group->get('/', GetAllPromotions::class)->add(VerrifyAccessToken::class);
+            });
+            $group->group('/branch', function (Group $group) {
+                $group->get('/', GetAllBranches::class)->add(VerrifyAccessToken::class);
+                $group->post('/create', CreatePromotion::class)->add(VerrifyAccessToken::class);
+            });
+        });
+        $group->group('/customer', function (Group $group) {
+            $group->group('/external', function (Group $group) {
+                $group->get('/get-list', ExternalGetList::class);
+                $group->post('/register', ExternalRegister::class);
+                $group->delete('/delete', ExternalDelete::class);
+            });
+            $group->group('/setting', function (Group $group) {
+                $group->group('/branch', function (Group $group) {
+                    $group->get('/', SettingBranchGetList::class);
+                    $group->get('/get-active', SettingBranchGetActive::class);
+                    $group->post('/create', SettingBranchCreate::class);
+                    $group->delete('/delete', SettingBranchDelete::class);
+                    $group->post('/edit', SettingBranchEdit::class);
+                    $group->post('/active', SettingBranchActive::class);
+                    $group->post('/unactive', SettingBranchUnactive::class);
+                });
+                $group->group('/service', function (Group $group) {
+                    $group->post('/create', SettingServiceCreate::class);
+                    $group->delete('/delete', SettingServiceDelete::class);
+                    $group->post('/edit', SettingServiceEdit::class);
+                });
+            });
         });
     });
 };

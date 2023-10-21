@@ -22,7 +22,7 @@ class RegisterExternal extends AuthAction
         $dateNow = date('Y-m-d H:i:s');
         $UUID = $this->UUIDV4();
 
-        $pdo = $this->pdoConnect($_ENV['DB_MEMBER']);
+        $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
         $insertAccountSuccess = $this->insertAccount($pdo, $UUID, $input['register_by'], $input['external_id'], $dateNow);
 

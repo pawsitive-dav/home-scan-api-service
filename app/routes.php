@@ -46,6 +46,12 @@ use App\Application\Actions\Customer\DataBacklogRegister;
 use App\Application\Actions\Customer\DataBacklogDelete;
 use App\Application\Actions\Customer\DataBacklogVerify;
 use App\Application\Actions\Customer\DataBacklogApproved;
+use App\Application\Actions\Customer\DataBacklogGetEmployee;
+
+use App\Application\Actions\Customer\DataWaitCallingGetList;
+use App\Application\Actions\Customer\DataWaitCallingGetMyList;
+use App\Application\Actions\Customer\DataWaitCallingReject;
+use App\Application\Actions\Customer\DataWaitCallingUpdateMessage;
 
 use App\Application\Actions\Customer\SettingBranchCreate;
 use App\Application\Actions\Customer\SettingBranchDelete;
@@ -55,6 +61,7 @@ use App\Application\Actions\Customer\SettingBranchUnactive;
 use App\Application\Actions\Customer\SettingBranchGetList;
 use App\Application\Actions\Customer\SettingBranchGetActive;
 
+use App\Application\Actions\Customer\SettingServiceGetList;
 use App\Application\Actions\Customer\SettingServiceCreate;
 use App\Application\Actions\Customer\SettingServiceDelete;
 use App\Application\Actions\Customer\SettingServiceEdit;
@@ -117,27 +124,35 @@ return function (App $app) {
         $group->group('/customer', function (Group $group) {
             $group->group('/data', function (Group $group) {
                 $group->group('/backlog', function (Group $group) {
-                    $group->get('/get', DataBacklogGetList::class);
                     $group->post('/register', DataBacklogRegister::class);
-                    $group->delete('/delete', DataBacklogDelete::class);
-                    $group->post('/verify', DataBacklogVerify::class);
-                    $group->post('/approved', DataBacklogApproved::class);
+                    $group->get('/get', DataBacklogGetList::class)->add(VerrifyAccessToken::class);
+                    $group->get('/get-employee', DataBacklogGetEmployee::class)->add(VerrifyAccessToken::class);
+                    $group->delete('/delete', DataBacklogDelete::class)->add(VerrifyAccessToken::class);
+                    $group->post('/verify', DataBacklogVerify::class)->add(VerrifyAccessToken::class);
+                    $group->post('/approved', DataBacklogApproved::class)->add(VerrifyAccessToken::class);
+                });
+                $group->group('/wait-calling', function (Group $group) {
+                    $group->get('/', DataWaitCallingGetList::class)->add(VerrifyAccessToken::class);
+                    $group->get('/mylist/{id}', DataWaitCallingGetMyList::class)->add(VerrifyAccessToken::class);
+                    $group->post('/reject', DataWaitCallingReject::class)->add(VerrifyAccessToken::class);
+                    $group->post('/update-message', DataWaitCallingUpdateMessage::class)->add(VerrifyAccessToken::class);
                 });
             });
             $group->group('/setting', function (Group $group) {
                 $group->group('/branch', function (Group $group) {
-                    $group->get('/', SettingBranchGetList::class);
-                    $group->get('/get-active', SettingBranchGetActive::class);
-                    $group->post('/create', SettingBranchCreate::class);
-                    $group->delete('/delete', SettingBranchDelete::class);
-                    $group->post('/edit', SettingBranchEdit::class);
-                    $group->post('/active', SettingBranchActive::class);
-                    $group->post('/unactive', SettingBranchUnactive::class);
+                    $group->get('/', SettingBranchGetList::class)->add(VerrifyAccessToken::class);
+                    $group->get('/get-active', SettingBranchGetActive::class)->add(VerrifyAccessToken::class);
+                    $group->post('/create', SettingBranchCreate::class)->add(VerrifyAccessToken::class);
+                    $group->delete('/delete', SettingBranchDelete::class)->add(VerrifyAccessToken::class);
+                    $group->post('/edit', SettingBranchEdit::class)->add(VerrifyAccessToken::class);
+                    $group->post('/active', SettingBranchActive::class)->add(VerrifyAccessToken::class);
+                    $group->post('/unactive', SettingBranchUnactive::class)->add(VerrifyAccessToken::class);
                 });
                 $group->group('/service', function (Group $group) {
-                    $group->post('/create', SettingServiceCreate::class);
-                    $group->delete('/delete', SettingServiceDelete::class);
-                    $group->post('/edit', SettingServiceEdit::class);
+                    $group->get('/', SettingServiceGetList::class)->add(VerrifyAccessToken::class);
+                    $group->post('/create', SettingServiceCreate::class)->add(VerrifyAccessToken::class);
+                    $group->delete('/delete', SettingServiceDelete::class)->add(VerrifyAccessToken::class);
+                    $group->post('/edit', SettingServiceEdit::class)->add(VerrifyAccessToken::class);
                 });
             });
         });

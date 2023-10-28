@@ -28,7 +28,7 @@ class LoginPortal extends AuthAction
             return $this->respondWithData("Username or Password is incorrect!", 404);
         }
 
-        if ($usernameVerifyResult["approval"] === "0") {
+        if ((int)$usernameVerifyResult["approval"] === 0) {
             return $this->respondWithData("Your account is not approved yet!", 401);
         }
 

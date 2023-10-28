@@ -11,8 +11,8 @@ class DataBacklogApproved extends MainAction
     protected function action(): Response
     {
         $input = $this->getFormData();
-        $allKeys = ["data_id"];
-        $requiredKeys = ["data_id"];
+        $allKeys = ["data_id", "assignee"];
+        $requiredKeys = ["data_id", "assignee"];
 
         if (!$this->validateInputBody($input, $allKeys, $requiredKeys)) {
             return $this->respondWithData("Bad Request", 400);
@@ -35,19 +35,27 @@ class DataBacklogApproved extends MainAction
         $resultData = $stmt->fetchAll()[0];
 
         $sqlQueryUpdate = "INSERT INTO data_wait_calling
-                        (data_id, data_status, full_name, mobile_number, branch_selected, customer_message, register_from, approved_at)
-                        VALUES
-                        (:data_id, :data_status, :full_name, :mobile_number, :branch_selected, :customer_message, :register_from, :approved_at)";
+                        SET
+                            data_id = :data_id,
+                            data_status = :data_status,
+                            full_name = :full_name,
+                            mobile_number = :mobile_number,
+                            branch_selected = :branch_selected,
+                            customer_message = :customer_message,
+                            register_from = :register_from,
+                            approved_at = :approved_at,
+                            assignee = :assignee";
 
         $stmt = $PDO->prepare($sqlQueryUpdate);
         $stmt->bindValue(':data_id', $resultData['data_id']);
-        $stmt->bindValue(':data_status', "new");
+        $stmt->bindValue(':data_status', "ready-for-call");
         $stmt->bindValue(':full_name', $resultData['full_name']);
         $stmt->bindValue(':mobile_number', $resultData['mobile_number']);
         $stmt->bindValue(':branch_selected', $resultData['branch_selected']);
         $stmt->bindValue(':customer_message', $resultData['customer_message']);
         $stmt->bindValue(':register_from', $resultData['register_from']);
         $stmt->bindValue(':approved_at', $DATETIME_NOW);
+        $stmt->bindValue(':assignee', $input['assignee']);
         $stmt->execute();
 
         if ($stmt->rowCount() == 0) return $this->respondWithData("Failed Update", 404);

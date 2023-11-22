@@ -58,9 +58,7 @@ class Upload extends MainAction
         }
 
         $resultData = json_decode($result, true);
-        $imagePath = str_replace('\/', '/', $resultData['file_path']);
-
-        $updateAvatar = $this->updateAvatarUrl($pdo, $account_id, $imagePath);
+        $updateAvatar = $this->updateAvatarUrl($pdo, $account_id, $resultData['file_path']);
         if (!$updateAvatar) {
             return $this->respondWithData("Update Fail", 404);
         } else {

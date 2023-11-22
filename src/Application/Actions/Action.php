@@ -176,7 +176,7 @@ abstract class Action
         curl_close($ch);
         if (!$result) return false;
         $resultData = json_decode($result, true);
-        $imagePath = str_replace('\/', '/', $resultData['file_path']);
+        $imagePath = str_replace('\/', '/', $resultData);
         return $imagePath;
     }
 

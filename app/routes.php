@@ -129,6 +129,8 @@ use App\Application\Actions\Project\InspectionReportEditNote;
 use App\Application\Actions\Project\InspectionReportStatusApproval;
 use App\Application\Actions\Project\InspectionReportStatusApprovalCancel;
 use App\Application\Actions\Project\InspectionReportStatusApproved;
+use App\Application\Actions\Project\InspectionReportGetImageBase64;
+use App\Application\Actions\Project\InspectionReportSavePDF;
 
 use App\Application\Actions\Project\InspectionReportGetLocationList;
 
@@ -294,6 +296,8 @@ return function (App $app) {
                     $group->post('/approval', InspectionReportStatusApproval::class)->add(VerrifyAccessToken::class);
                     $group->post('/approval-cancel', InspectionReportStatusApprovalCancel::class)->add(VerrifyAccessToken::class);
                     $group->post('/approved', InspectionReportStatusApproved::class)->add(VerrifyAccessToken::class);
+                    $group->post('/image-64', InspectionReportGetImageBase64::class)->add(VerrifyAccessToken::class);
+                    $group->post('/save-pdf', InspectionReportSavePDF::class)->add(VerrifyAccessToken::class);
                     $group->group('/note', function (Group $group) {
                         $group->post('/note-list', InspectionReportGetNoteList::class)->add(VerrifyAccessToken::class);
                         $group->post('/add', InspectionReportAddNote::class)->add(VerrifyAccessToken::class);

@@ -23,7 +23,6 @@ class InspectionReportGetNoteList extends MainAction
         $sqlQuery = "SELECT 
                     rn.report_note_id,
                     rn.report_title,
-                    rn.report_description,
                     rn.created_at,
                     rn.updated_at,
                     JSON_OBJECT(
@@ -64,7 +63,6 @@ class InspectionReportGetNoteList extends MainAction
             $jsonData[] = [
                 "report_note_id" => $data["report_note_id"],
                 "report_title" => $data["report_title"],
-                "report_description" => $data["report_description"],
                 "created_at" => $data["created_at"],
                 "updated_at" => $data["updated_at"],
                 "created_by" => json_decode($data["created_by"]),

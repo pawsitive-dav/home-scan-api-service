@@ -26,10 +26,12 @@ class InspcetionGetSystemDetail extends MainAction
                         ist.system_id, 
                         ist.system_name, 
                         pd.project_name,
-                        id.inspection_no
+                        id.inspection_no,
+                        rl.report_status
                     FROM inspection_system ist
                     LEFT JOIN project_detail pd ON ist.project_id = pd.project_id
                     LEFT JOIN inspection_detail id ON ist.inspection_id = id.inspection_id
+                    LEFT JOIN report_list rl ON ist.inspection_id = rl.inspection_id
                     WHERE ist.system_id = :system_id";
 
         $stmt = $pdo->prepare($sqlQuery);

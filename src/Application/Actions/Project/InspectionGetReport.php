@@ -17,6 +17,7 @@ class InspectionGetReport extends MainAction
                         rl.inspection_id,
                         rl.report_id,
                         rl.report_status,
+                        rl.report_path,
                         rl.created_at,
                         JSON_OBJECT(
                             'avatar_path', mi_created_by.avatar_path,
@@ -54,6 +55,7 @@ class InspectionGetReport extends MainAction
                 "inspection_id" => $data["inspection_id"],
                 "report_id" => $data["report_id"],
                 "report_status" => $data["report_status"],
+                "report_path" => $data["report_path"],
                 "created_at" => $data["created_at"],
                 "created_by" => json_decode($data["created_by"]),
                 "approved_at" => $data["approved_at"],

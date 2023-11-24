@@ -11,7 +11,7 @@ class InspectionReportAddNote extends MainAction
     protected function action(): Response
     {
         $input = $this->getFormData();
-        $allKeys = ["project_id", "inspection_id", "report_id", "report_title", "report_description", "note_list"];
+        $allKeys = ["project_id", "inspection_id", "report_id", "report_title", "note_list"];
         $requiredKeys = ["project_id", "inspection_id", "report_id", "report_title"];
 
         if (!$this->validateInputBody($input, $allKeys, $requiredKeys)) {
@@ -32,7 +32,6 @@ class InspectionReportAddNote extends MainAction
                             report_id = :report_id,
                             report_note_id = :report_note_id,
                             report_title = :report_title,
-                            report_description = :report_description,
                             created_at = :created_at,
                             created_by = :created_by";
 
@@ -42,7 +41,6 @@ class InspectionReportAddNote extends MainAction
         $stmt->bindValue(':report_id', $input['report_id']);
         $stmt->bindValue(':report_note_id', $reportNoteId);
         $stmt->bindValue(':report_title', $input['report_title']);
-        $stmt->bindValue(':report_description', $input['report_description']);
         $stmt->bindValue(':created_at', $dateNow);
         $stmt->bindValue(':created_by', $accountId);
         $result = $stmt->execute();

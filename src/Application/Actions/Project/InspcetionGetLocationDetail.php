@@ -26,10 +26,12 @@ class InspcetionGetLocationDetail extends MainAction
                         il.location_id, 
                         il.location_name, 
                         pd.project_name,
-                        id.inspection_no
+                        id.inspection_no,
+                        rl.report_status
                     FROM inspection_location il
                     LEFT JOIN project_detail pd ON il.project_id = pd.project_id
                     LEFT JOIN inspection_detail id ON il.inspection_id = id.inspection_id
+                    LEFT JOIN report_list rl ON il.inspection_id = rl.inspection_id
                     WHERE il.location_id = :location_id";
 
         $stmt = $pdo->prepare($sqlQuery);

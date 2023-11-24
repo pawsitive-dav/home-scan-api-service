@@ -20,7 +20,7 @@ class InspcetionDelete extends MainAction
 
         $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
-        // inspection_location_deflect
+        // Delete inspection_location_deflect
         $sqlQuery = "DELETE FROM inspection_location_deflect 
                     WHERE project_id = :project_id AND inspection_id = :inspection_id";
 
@@ -31,7 +31,7 @@ class InspcetionDelete extends MainAction
 
         if (empty($deleteInspectionLocationDeflectResult)) return $this->respondWithData("Delete Location Deflect Fail", 404);
 
-        // inspection_location
+        // Delete inspection_location
         $sqlQuery = "DELETE FROM inspection_location 
                     WHERE project_id = :project_id AND inspection_id = :inspection_id";
 
@@ -42,7 +42,7 @@ class InspcetionDelete extends MainAction
 
         if (empty($deleteInspectionLocationResult)) return $this->respondWithData("Delete Location Fail", 404);
 
-        // inspection_system_deflect
+        // Delete inspection_system_deflect
         $sqlQuery = "DELETE FROM inspection_system_deflect 
                     WHERE project_id = :project_id AND inspection_id = :inspection_id";
 
@@ -53,7 +53,7 @@ class InspcetionDelete extends MainAction
 
         if (empty($deleteInspectionSystemDeflectResult)) return $this->respondWithData("Delete System Deflect Fail", 404);
 
-        // inspection_system
+        // Delete inspection_system
         $sqlQuery = "DELETE FROM inspection_system 
                     WHERE project_id = :project_id AND inspection_id = :inspection_id";
 
@@ -63,6 +63,39 @@ class InspcetionDelete extends MainAction
         $deleteInspectionSystemResult = $stmt->execute();
 
         if (empty($deleteInspectionSystemResult)) return $this->respondWithData("Delete System Fail", 404);
+
+        // Delete report_note_list
+        $sqlQuery = "DELETE FROM report_note_list 
+                    WHERE project_id = :project_id AND inspection_id = :inspection_id";
+
+        $stmt = $pdo->prepare($sqlQuery);
+        $stmt->bindValue(':project_id', $input['project_id']);
+        $stmt->bindValue(':inspection_id', $input['inspection_id']);
+        $deleteInspectionReportNoteListResult = $stmt->execute();
+
+        if (empty($deleteInspectionReportNoteListResult)) return $this->respondWithData("Delete Report Note List Fail", 404);
+
+        // Delete report_note
+        $sqlQuery = "DELETE FROM report_note 
+                    WHERE project_id = :project_id AND inspection_id = :inspection_id";
+
+        $stmt = $pdo->prepare($sqlQuery);
+        $stmt->bindValue(':project_id', $input['project_id']);
+        $stmt->bindValue(':inspection_id', $input['inspection_id']);
+        $deleteInspectionReportNoteResult = $stmt->execute();
+
+        if (empty($deleteInspectionReportNoteResult)) return $this->respondWithData("Delete Report Note Fail", 404);
+
+        // Delete report_list
+        $sqlQuery = "DELETE FROM report_list 
+                    WHERE project_id = :project_id AND inspection_id = :inspection_id";
+
+        $stmt = $pdo->prepare($sqlQuery);
+        $stmt->bindValue(':project_id', $input['project_id']);
+        $stmt->bindValue(':inspection_id', $input['inspection_id']);
+        $deleteInspectionReportResult = $stmt->execute();
+
+        if (empty($deleteInspectionReportResult)) return $this->respondWithData("Delete Report Fail", 404);
 
         // Delete inspection_detail
         $sqlQuery = "DELETE FROM inspection_detail 
@@ -75,6 +108,7 @@ class InspcetionDelete extends MainAction
 
         if (empty($deleteInspectionResult)) return $this->respondWithData("Delete Inspection Fail", 404);
 
+        // Update Status
         $sqlQueryInspection = "SELECT * FROM inspection_detail WHERE project_id = :project_id";
         $stmtInspection = $pdo->prepare($sqlQueryInspection);
         $stmtInspection->bindValue(':project_id', $input['project_id']);

@@ -11,7 +11,7 @@ class InspectionReportEditNote extends MainAction
     protected function action(): Response
     {
         $input = $this->getFormData();
-        $allKeys = ["project_id", "inspection_id", "report_id", "report_note_id", "report_title", "report_description", "note_list"];
+        $allKeys = ["project_id", "inspection_id", "report_id", "report_note_id", "report_title", "note_list"];
         $requiredKeys = ["project_id", "inspection_id", "report_id", "report_note_id", "report_title"];
 
         if (!$this->validateInputBody($input, $allKeys, $requiredKeys)) {
@@ -26,7 +26,6 @@ class InspectionReportEditNote extends MainAction
 
         $sqlQuery = "UPDATE report_note SET
                             report_title = :report_title,
-                            report_description = :report_description,
                             updated_at = :updated_at,
                             updated_by = :updated_by
                             WHERE report_id = :report_id 
@@ -34,7 +33,6 @@ class InspectionReportEditNote extends MainAction
 
         $stmt = $pdo->prepare($sqlQuery);
         $stmt->bindValue(':report_title', $input['report_title']);
-        $stmt->bindValue(':report_description', $input['report_description']);
         $stmt->bindValue(':updated_at', $dateNow);
         $stmt->bindValue(':updated_by', $accountId);
         $stmt->bindValue(':report_id', $input['report_id']);

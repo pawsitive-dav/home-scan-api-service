@@ -20,7 +20,8 @@ class InspectionReportGetLocationList extends MainAction
 
         $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
-        $sqlQuery = "SELECT 
+        $sqlQuery =
+            "SELECT 
                     il.inspection_id,
                     il.location_id,
                     il.location_name,
@@ -71,7 +72,7 @@ class InspectionReportGetLocationList extends MainAction
                     LEFT JOIN member_info image_updated_by ON isto.uploaded_by = image_updated_by.account_id
                     LEFT JOIN member_info deflect_update_status_by ON ild.update_status_by = deflect_update_status_by.account_id
                     WHERE il.project_id = :project_id AND il.inspection_id = :inspection_id
-                    GROUP BY il.location_id";
+                    GROUP BY il.inspection_id, il.location_id, il.location_name";
 
         $stmt = $pdo->prepare($sqlQuery);
         $stmt->bindValue(':project_id', $input['project_id']);

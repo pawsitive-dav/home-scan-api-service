@@ -20,7 +20,9 @@ class InspectionReportGetNoteList extends MainAction
 
         $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
-        $sqlQuery = "SELECT 
+        $sqlQuery =
+            "SELECT 
+                    rn.id,
                     rn.report_note_id,
                     rn.report_title,
                     rn.created_at,
@@ -39,6 +41,7 @@ class InspectionReportGetNoteList extends MainAction
                     ) AS updated_by,
                     GROUP_CONCAT(
                         JSON_OBJECT(
+                            'id', rnl.id,
                             'report_note_list_id', rnl.report_note_list_id,
                             'list_message', rnl.list_message
                         )
@@ -48,7 +51,20 @@ class InspectionReportGetNoteList extends MainAction
                     LEFT JOIN member_info mi_updated_by ON rn.updated_by = mi_updated_by.account_id
                     LEFT JOIN report_note_list rnl ON rn.report_note_id = rnl.report_note_id
                     WHERE rn.report_id = :report_id
-                    GROUP BY rn.report_note_id";
+                    GROUP BY 
+                        rn.id, 
+                        rn.report_note_id, 
+                        rn.report_title, 
+                        rn.created_at, 
+                        rn.updated_at, 
+                        mi_created_by.avatar_path, 
+                        mi_created_by.first_name, 
+                        mi_created_by.last_name, 
+                        mi_created_by.code_name, 
+                        mi_updated_by.avatar_path, 
+                        mi_updated_by.first_name, 
+                        mi_updated_by.last_name, 
+                        mi_updated_by.code_name";
 
         $stmt = $pdo->prepare($sqlQuery);
         $stmt->bindValue(':report_id', $input['report_id']);
@@ -61,6 +77,7 @@ class InspectionReportGetNoteList extends MainAction
         $jsonData = [];
         foreach ($allData as $data) {
             $jsonData[] = [
+                "id" => $data["id"],
                 "report_note_id" => $data["report_note_id"],
                 "report_title" => $data["report_title"],
                 "created_at" => $data["created_at"],

@@ -24,11 +24,7 @@ class AccountGetApproval extends AuthAction
         $stmt = $pdo->prepare($sqlQuery);
         $stmt->execute();
 
-        if ($stmt->rowCount() == 0) {
-            return $this->respondWithData("Fail", 404);
-        } else {
-            $allData = $stmt->fetchAll();
-        }
+        $allData = $stmt->fetchAll();
         return $this->respondWithData($allData);
     }
 }

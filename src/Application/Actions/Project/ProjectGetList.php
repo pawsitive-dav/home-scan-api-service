@@ -49,7 +49,29 @@ class ProjectGetList extends MainAction
                     LEFT JOIN project_file pf ON pd.project_id = pf.project_id AND pf.file_type = 'main'
                     LEFT JOIN member_info mi_project_owner ON pt.project_owner = mi_project_owner.account_id
                     LEFT JOIN member_info mi_checker_supervisor ON pt.checker_supervisor = mi_checker_supervisor.account_id
-                    GROUP BY pd.project_id";
+                    GROUP BY
+                        pd.project_id,
+                        pd.project_status,
+                        pd.project_name,
+                        pd.project_note,
+                        ptd.project_type,
+                        ptd.type_address,
+                        ptd.type_usable_area,
+                        pc.customer_name,
+                        pc.customer_phone,
+                        pc.customer_email,
+                        pco.coordinator_name,
+                        pco.coordinator_phone,
+                        pco.coordinator_email,
+                        pf.image_path,
+                        mi_project_owner.avatar_path,
+                        mi_project_owner.first_name,
+                        mi_project_owner.last_name,
+                        mi_project_owner.code_name,
+                        mi_checker_supervisor.avatar_path,
+                        mi_checker_supervisor.first_name,
+                        mi_checker_supervisor.last_name,
+                        mi_checker_supervisor.code_name";
 
         $stmt = $pdo->prepare($sqlQuery);
         $stmt->execute();

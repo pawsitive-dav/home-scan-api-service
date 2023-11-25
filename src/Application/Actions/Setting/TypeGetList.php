@@ -36,7 +36,6 @@ class TypeGetList extends MainAction
         $stmt = $PDO->prepare($sqlQuery);
         $stmt->execute();
 
-        if ($stmt->rowCount() === 0) return $this->respondWithData("No data", 404);
         $allData = $stmt->fetchAll();
         return $this->respondWithData($allData);
     }

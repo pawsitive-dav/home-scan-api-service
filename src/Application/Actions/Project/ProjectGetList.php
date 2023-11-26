@@ -35,6 +35,7 @@ class ProjectGetList extends MainAction
                             'code_name', mi_project_owner.code_name
                         ) AS project_owner,
                         JSON_OBJECT(
+                            'account_id', mi_checker_supervisor.account_id,
                             'avatar_path', mi_checker_supervisor.avatar_path,
                             'first_name', mi_checker_supervisor.first_name,
                             'last_name', mi_checker_supervisor.last_name,
@@ -68,6 +69,7 @@ class ProjectGetList extends MainAction
                         mi_project_owner.first_name,
                         mi_project_owner.last_name,
                         mi_project_owner.code_name,
+                        mi_checker_supervisor.account_id,
                         mi_checker_supervisor.avatar_path,
                         mi_checker_supervisor.first_name,
                         mi_checker_supervisor.last_name,

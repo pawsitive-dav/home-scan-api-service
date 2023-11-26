@@ -27,7 +27,8 @@ class InspcetionGetDetail extends MainAction
                     ide.working_date, 
                     ide.inspection_no, 
                     ide.created_at,
-                    rl.report_status 
+                    rl.report_status,
+                    rl.report_id 
                     FROM inspection_detail ide
                     INNER JOIN project_detail pd ON ide.project_id = pd.project_id 
                     LEFT JOIN report_list rl ON ide.inspection_id = rl.inspection_id 

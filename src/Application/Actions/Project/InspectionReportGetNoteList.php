@@ -20,74 +20,63 @@ class InspectionReportGetNoteList extends MainAction
 
         $pdo = $this->pdoConnect($_ENV['DB_PORTAL']);
 
-        $sqlQuery =
-            "SELECT 
-                    rn.id,
-                    rn.report_note_id,
-                    rn.report_title,
-                    rn.created_at,
-                    rn.updated_at,
-                    JSON_OBJECT(
-                        'avatar_path', mi_created_by.avatar_path,
-                        'first_name', mi_created_by.first_name,
-                        'last_name', mi_created_by.last_name,
-                        'code_name', mi_created_by.code_name
-                    ) AS created_by,
-                    JSON_OBJECT(
-                        'avatar_path', mi_updated_by.avatar_path,
-                        'first_name', mi_updated_by.first_name,
-                        'last_name', mi_updated_by.last_name,
-                        'code_name', mi_updated_by.code_name
-                    ) AS updated_by,
-                    GROUP_CONCAT(
-                        JSON_OBJECT(
-                            'id', rnl.id,
-                            'report_note_list_id', rnl.report_note_list_id,
-                            'list_message', rnl.list_message
-                        )
-                    ) AS note_list
-                    FROM report_note rn
-                    LEFT JOIN member_info mi_created_by ON rn.created_by = mi_created_by.account_id
-                    LEFT JOIN member_info mi_updated_by ON rn.updated_by = mi_updated_by.account_id
-                    LEFT JOIN report_note_list rnl ON rn.report_note_id = rnl.report_note_id
-                    WHERE rn.report_id = :report_id
-                    GROUP BY 
-                        rn.id, 
-                        rn.report_note_id, 
-                        rn.report_title, 
-                        rn.created_at, 
-                        rn.updated_at, 
-                        mi_created_by.avatar_path, 
-                        mi_created_by.first_name, 
-                        mi_created_by.last_name, 
-                        mi_created_by.code_name, 
-                        mi_updated_by.avatar_path, 
-                        mi_updated_by.first_name, 
-                        mi_updated_by.last_name, 
-                        mi_updated_by.code_name";
+        // Member query
+        $memberQuery = "SELECT 
+                    account_id, 
+                    avatar_path,
+                    code_name, 
+                    first_name,
+                    last_name
+                FROM member_info
+                WHERE account_id = :account_id";
 
-        $stmt = $pdo->prepare($sqlQuery);
-        $stmt->bindValue(':report_id', $input['report_id']);
-        $result = $stmt->execute();
+        // Query for report_note table
+        $sqlQueryNote = "SELECT 
+                    id,
+                    report_note_id,
+                    report_title,
+                    created_at,
+                    updated_at,
+                    created_by,
+                    updated_by
+                FROM report_note
+                WHERE report_id = :report_id";
 
-        if (!$result) return $this->respondWithData("Get Fail", 404);
+        $stmtNote = $pdo->prepare($sqlQueryNote);
+        $stmtNote->bindValue(':report_id', $input['report_id']);
+        $stmtNote->execute();
 
-        $allData = $stmt->fetchAll();
+        $reportNoteData = $stmtNote->fetchAll();
 
-        $jsonData = [];
-        foreach ($allData as $data) {
-            $jsonData[] = [
-                "id" => $data["id"],
-                "report_note_id" => $data["report_note_id"],
-                "report_title" => $data["report_title"],
-                "created_at" => $data["created_at"],
-                "updated_at" => $data["updated_at"],
-                "created_by" => json_decode($data["created_by"]),
-                "updated_by" => json_decode($data["updated_by"]),
-                "note_list" => json_decode('[' . $data["note_list"] . ']')
-            ];
+        // Loop through each report_note record and fetch corresponding member information for created_by
+        foreach ($reportNoteData as &$note) {
+            // Query for created_by member information
+            $stmtCreatedBy = $pdo->prepare($memberQuery);
+            $stmtCreatedBy->bindValue(':account_id', $note['created_by']);
+            $stmtCreatedBy->execute();
+            $note['created_by'] = $stmtCreatedBy->fetch();
+
+            // Query for updated_by member information
+            $stmtUpdatedBy = $pdo->prepare($memberQuery);
+            $stmtUpdatedBy->bindValue(':account_id', $note['updated_by']);
+            $stmtUpdatedBy->execute();
+            $note['updated_by'] = $stmtUpdatedBy->fetch();
+
+            // Query for report_note_list table
+            $sqlQueryList = "SELECT 
+                        id,
+                        list_message,
+                        report_note_id
+                    FROM report_note_list
+                    WHERE report_note_id = :report_note_id";
+
+            $stmtList = $pdo->prepare($sqlQueryList);
+            $stmtList->bindValue(':report_note_id', $note['report_note_id']);
+            $stmtList->execute();
+
+            $note['note_list'] = $stmtList->fetchAll();
         }
 
-        return $this->respondWithData($jsonData);
+        return $this->respondWithData($reportNoteData);
     }
 }
